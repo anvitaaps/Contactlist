@@ -1,0 +1,102 @@
+<html>
+	<body ng-app="myApp" ng-controller="cntrl">
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+
+	<title>Contact list App</title>
+</head>
+<body>
+<div class="container" >
+<h1>Contact list app</h1>
+
+<table class="table">
+<thead>
+	<tr>
+	<th>Name</th>
+	<th>Email</th>
+	<th>Number</th>
+	<th>Action</th>
+	</tr>
+</thead>
+<tbody>
+<tr>
+<td><input class="form-control" ng-model="contact.name">
+
+<td><input class="form-control" ng-model="contact.email">
+
+<td><input class="form-control" ng-model="contact.number">
+
+<td><button class="btn btn-primary" ng-click="addContact()">Add Contact</button>
+</td>
+<td><button class="btn btn-info" ng-click="update()">Update</button>&nbsp;&nbsp;<button class="btn btn-info ng-click="deselect()">Clear</button></td>
+
+</tr>
+	<tr ng-repeat="contact in contactlist">
+		<td>{{contact.name}}</td>
+		<td>{{contact.email}}</td>
+		<td>{{contact.number}}</td>
+		<td><button class="btn btn-danger" ng-click="remove(contact._id)">Remove</button></td>
+		<td><button class="btn btn-warning" ng-click="edit(contact._id)">Edit</button></td>
+		</tr>
+</tbody>
+</table>
+</div>
+
+<script src="controllers/controller.js"></script>
+
+		<script>
+			var app=angular.module('myApp',[]);
+			app.controller('cntrl',function($scope,$http){
+				console.log("Hello world from controller");
+                var refresh = function(){
+
+
+				$http.get('/contactlist').success(function(response) {
+					console.log("i got the data requested");
+					$scope.contactlist = response;
+					$scope.contact = "";
+				});
+}
+refresh();
+				$scope.addContact = function() {
+					console.log($scope.contact);
+					$http.post('/contactlist',$scope.contact).success(function(response){
+						console.log(response);
+						refresh();
+					});
+				};
+
+				$scope.remove = function(id){
+					console.log(id);
+					$http.delete('/contactlist/' + id).success(function(response){
+						refresh();
+					});
+				};
+
+				$scope.edit = function(id) {
+					console.log(id);
+					$http.get('/contactlist/' + id).success(function(response){
+						$scope.contact = response;
+					});
+				};
+
+				$scope.update =function() {
+					console.log($scope.contact._id);
+					$http.put('/contactlist/' + $scope.contact._id, $scope.contact).success(function(response) {
+						refresh();
+					})
+				}
+
+				$scope.deselect = function() {
+					$scope.contact = ""
+				}
+});
+
+
+		
+</script>
+
+</body>
+</html>
